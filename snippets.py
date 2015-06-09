@@ -28,10 +28,25 @@ def main():
 	
 	#subparser for the put command
 	logging.debug("Constructing put subparser")
-	put_parser = subparsers.add_parser("put", help= "Store a snippet")
-	put_parser.add_argument("name", help="The name of the snippet")
-	put_parser.add_argument("snippet", help="The snippet text")
+	put_parser = subparsers.add_parser("put", help = "Store a snippet")
+	put_parser.add_argument("name", help = "The name of the snippet")
+	put_parser.add_argument("snippet", help = "The snippet text")
+	
+	get_parser = subparsers.add_parser("get", help = "Get a snippet")
+	get_parser.add_argument("name", help = "The name of the snippet")
+	
 	arguments = parser.parse_args(sys.argv[1:])
+	
+	# Convert parsed arguments from Namesapce to dictionary 
+	arguments = vars(arguments)
+	command = arguments.pop("command")
+	
+	if command == "put":
+		name, snippet = put (**arguments)
+		print("Stored {!r} as {!r}".format(snippet, name))
+	elif command == "get":
+		snippet = get(**arguments)
+		print("Retrieved snippet: {!r}".format(snippet))
 	
 if __name__ == "__main__":
 	main()
