@@ -27,13 +27,13 @@ def put(name, snippet):
 								
 def get(name):
     """Retrieve the snippet with a given name. If there is no such snippet, program will not retrieve anything. Be aware that this will not auto populate due to security risks. Return snippet. """
-    cursor = connection.cursor()
-    command = "select keyword, message from snippets where keyword=%s;" 
-    cursor.execute(command, (name,))
-    row = cursor.fetchone()
-    connection.commit()
-    logging.debug("Snippet stored successfully.")
-    return row[1]
+    with connection, connection.cursor() as cursor:
+    	cursor.execute("select message from snippets where keyword=%s", (name,))
+   	row = cursor.fetchone()
+		connection.commit()
+		if not row: 
+			#No snippet was found with that name
+		print "no such avail"
 								
 
 def main(): 
