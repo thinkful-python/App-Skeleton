@@ -6,22 +6,20 @@ import sys
 # Set the log output file, and the log level
 logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
 logging.debug("Connecting to PostgreSQL")
-connection = psycopg2.connect("dbname='snippets' user='action' host='localhost'")
+connection = psycopg2.connect("dbname='snippets' user='ubuntu' password='thinkful' host='localhost'")
 logging.debug("Database connection established.")
 
 def put(name, snippet):
     """Store a snippet with an associated name."""
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
-    cursor = connection.cursor()
-    command = "insert into snippets values (%s, %s)"
     try:
-        command = "insert into snippets values (%s, %s)"
-        cursor.execute(command, (name, snippet))
+        with connection, connection.cursor() as cursor:
+           command = "insert into snippets values (%s, %s)"
+           cursor.execute(command, (name, snippet))
     except psycopg2.IntegrityError as e:
-        connection.rollback()
-        command = "update snippets set message=%s where keyword=%s"
-        cursor.execute(command, (snippet, name))
-    connection.commit()
+       with connection, connection.cursor() as cursor:
+           command = "update snippets set message=%s where keyword=%s"
+           cursor.execute(command, (snippet, name))
     logging.debug("Snippet stored successfully.")
     return name, snippet
 								
@@ -29,12 +27,11 @@ def get(name):
     """Retrieve the snippet with a given name. If there is no such snippet, program will not retrieve anything. Be aware that this will not auto populate due to security risks. Return snippet. """
     with connection, connection.cursor() as cursor:
     	cursor.execute("select message from snippets where keyword=%s", (name,))
-   	row = cursor.fetchone()
-		connection.commit()
-		if not row: 
-			#No snippet was found with that name
+    	row = cursor.fetchone()
+    if not row: 
+		#No snippet was found with that name
 		print "no such avail"
-								
+    return row	
 
 def main(): 
 	"""Main function"""
