@@ -32,7 +32,13 @@ def get(name):
 		#No snippet was found with that name
 		print "no such avail"
     return row	
-
+    
+def catalog(): 
+	""" list available snippets """ 
+	with connection, connection.cursor() as cursor: 
+		cursor.execute("select * from snippets order by keyword") 
+		return cursor.fetchall()
+    
 def main(): 
 	"""Main function"""
 	logging.info("Constructing parser")
@@ -49,6 +55,8 @@ def main():
 	get_parser = subparsers.add_parser("get", help = "Get a snippet")
 	get_parser.add_argument("name", help = "The name of the snippet")
 	
+	list_parser = subparsers.add_parser("list", help = "list available snippets to retrieve") 
+	
 	arguments = parser.parse_args(sys.argv[1:])
 	
 	# Convert parsed arguments from Namesapce to dictionary 
@@ -61,6 +69,9 @@ def main():
 	elif command == "get":
 		snippet = get(**arguments)
 		print("Retrieved snippet: {!r}".format(snippet))
+	elif command == "list": 
+		all_snippets = catalog(**arguments)
+		print("Here's all the snippets: {!r}".format(all_snippets)) 
 	
 if __name__ == "__main__":
 	main()
